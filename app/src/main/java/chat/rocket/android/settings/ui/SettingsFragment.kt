@@ -2,8 +2,10 @@ package chat.rocket.android.settings.ui
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.drawable.Animatable
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +27,10 @@ import chat.rocket.android.settings.presentation.SettingsView
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.android.util.extensions.showToast
 import chat.rocket.android.util.invalidateFirebaseToken
+import com.facebook.drawee.backends.pipeline.Fresco.newDraweeControllerBuilder
+import com.facebook.drawee.controller.BaseControllerListener
+import com.facebook.drawee.controller.ControllerListener
+import com.facebook.imagepipeline.image.ImageInfo
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.app_bar.*
 import kotlinx.android.synthetic.main.dialog_delete_account.*
@@ -158,6 +164,22 @@ class SettingsFragment : Fragment(), SettingsView, AppLanguageView {
         text_logout.setOnClickListener { showLogoutDialog() }
 
         text_delete_account.setOnClickListener { showDeleteAccountDialog() }
+
+        image_avatar.setController(newDraweeControllerBuilder().setControllerListener(object: BaseControllerListener<ImageInfo>() {
+            override fun onSubmit(id: String?, callerContext: Any?) {
+                showLoading()
+            }
+
+            override fun onFailure(id: String?, throwable: Throwable?) {
+                super.onFailure(id, throwable)
+                hideLoading()
+            }
+
+            override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                super.onFinalImageSet(id, imageInfo, animatable)
+                hideLoading()
+            }
+        }).build())
     }
 
     private fun setupToolbar() {
